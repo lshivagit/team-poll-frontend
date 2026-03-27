@@ -42,7 +42,6 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
     ]
   }
 
-  // Build arc paths
   const segments = results.map((item, i) => {
     if (item.percentage === 0) return null
     const startPct = cumulativePercent
@@ -85,15 +84,12 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* subtle bg disc */}
         <circle cx={cx} cy={cy} r={outerR} fill="#f1f5f9" />
         {segments}
-        {/* inner white circle to create donut */}
         {results.every(r => r.percentage !== 100) && (
           <circle cx={cx} cy={cy} r={innerR} fill="white" />
         )}
       </svg>
-      {/* Center label */}
       <div style={{
         position: 'absolute', inset: 0,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -106,31 +102,48 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
   )
 }
 
-
 function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy: (id: string) => void }) {
   const [results, setResults] = useState<Choice[]>([])
   const [totalVotes, setTotalVotes] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [loadingResults, setLoadingResults] = useState(true)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  // Intersection Observer to lazy-load streaming results
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       setIsVisible(entry.isIntersecting)
-    }, { threshold: 0.05 }) // Start streaming even when just slightly visible
+    }, { threshold: 0.05 })
     
     if (cardRef.current) observer.observe(cardRef.current)
     return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
-    // Only connect if the card is visible on screen
     if (!isVisible) return
 
     const token = localStorage.getItem("auth_token")
     const controller = new AbortController()
 
-    const connect = async () => {
+    const fetchInitialData = async () => {
+      try {
+        const data = await api.get<any>(`/polls/${poll.id}`)
+        const initialTotal = data.choices.reduce((acc: number, c: any) => acc + (c.vote_count || 0), 0)
+        const mappedResults = data.choices.map((c: any) => ({
+          choice_id: c.id,
+          text: c.option_text,
+          votes: c.vote_count,
+          percentage: initialTotal === 0 ? 0 : Math.round((c.vote_count / initialTotal) * 100)
+        }))
+        setResults(mappedResults)
+        setTotalVotes(initialTotal)
+        setLoadingResults(false)
+      } catch (err) {
+        console.error("Initial fetch error:", err)
+        setLoadingResults(false)
+      }
+    }
+
+    const connectStream = async () => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/polls/${poll.id}/stream`,
@@ -153,6 +166,7 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
                 const data = JSON.parse(line.slice(6))
                 setResults(data.results)
                 setTotalVotes(data.total_votes)
+                setLoadingResults(false)
               } catch {}
             }
           }
@@ -162,7 +176,9 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
       }
     }
 
-    connect()
+    fetchInitialData()
+    connectStream()
+    
     return () => controller.abort()
   }, [poll.id, isVisible])
 
@@ -198,100 +214,113 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
           {poll.about || "No description provided."}
         </p>
  
-        {/* Results block */}
-        <div style={{ marginBottom: '32px', background: 'rgba(248, 250, 252, 0.8)', borderRadius: '20px', padding: '20px 24px', border: '1px solid #e2e8f0' }}>
-          {/* header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isClosed ? '0' : '14px' }}>
-            {!isClosed && (
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                📊 Live Results
-              </span>
-            )}
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: isClosed ? '#64748b' : '#6366f1', marginLeft: isClosed ? '0' : 'auto' }}>
-              Final Count: {totalVotes} vote{totalVotes !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {results.length === 0 ? (
+        <div style={{ 
+          marginBottom: '32px', 
+          background: 'rgba(248, 250, 252, 0.8)', 
+          borderRadius: '20px', 
+          padding: '24px', 
+          border: '1px solid #e2e8f0',
+          minHeight: '180px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: 'relative'
+        }}>
+          {loadingResults && results.length === 0 ? (
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin h-6 w-6 border-2 border-indigo-600 border-t-transparent rounded-full opacity-50"></div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>SECURE SYNC...</span>
+            </div>
+          ) : results.length === 0 ? (
             <p style={{ fontSize: '0.875rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '10px 0' }}>
               No votes yet — be the first!
             </p>
           ) : (
-            <div style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
-              {/* Donut Pie Chart — left side */}
-              <PollPieChart results={results} totalVotes={totalVotes} />
-
-              {/* Options list — right side */}
-              <div style={{ flex: 1, display: 'grid', gap: '10px', minWidth: 0 }}>
-                {(() => {
-                  const maxVotes = Math.max(...results.map(x => x.votes), 0)
-                  const topOptionsCount = results.filter(x => x.votes === maxVotes && maxVotes > 0).length
-                  
-                  return results.map((r, i) => {
-                    const color = CHART_COLORS[i % CHART_COLORS.length]
-                    const isTop = r.votes === maxVotes && r.votes > 0
-                    const tagLabel = topOptionsCount > 1 ? "Tie" : "Leading"
-                    return (
-                      <div key={r.choice_id}>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '6px 0' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexShrink: 0, width: '45%' }}>
-                            <span style={{
-                              width: '8px', height: '8px', borderRadius: '50%',
-                              background: color, flexShrink: 0,
-                              boxShadow: `0 0 0 2px ${color}30`
-                            }} />
-                            <span style={{
-                              fontSize: '0.82rem', fontWeight: 600, color: '#334155',
-                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                            }}>
-                              {r.text}
-                            </span>
-                            {isTop && (
-                              <span style={{
-                                fontSize: '0.55rem', fontWeight: 800, color: color,
-                                background: `${color}15`, border: `1px solid ${color}30`,
-                                borderRadius: '4px', padding: '1px 5px',
-                                textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0
-                              }}>
-                                {tagLabel}
-                              </span>
-                            )}
-                          </div>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color, flexShrink: 0, marginLeft: '8px', width: '36px', textAlign: 'right' }}>
-                          {r.percentage}%
-                        </span>
-                        
-                        {/* Bar Graph Box with X/Y axes */}
-                        <div style={{ 
-                          flex: 1, 
-                          height: '22px', 
-                          borderLeft: '2px solid #cbd5e1', 
-                          borderBottom: '2px solid #cbd5e1', 
-                          marginLeft: '14px',
-                          display: 'flex', 
-                          alignItems: 'flex-end', 
-                          paddingBottom: '2px'
-                        }}>
-                           <div style={{
-                             height: '10px',
-                             width: `${r.percentage}%`,
-                             background: `linear-gradient(90deg, ${color}cc, ${color})`,
-                             borderRadius: '0 3px 3px 0',
-                             transition: 'width 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
-                             minWidth: r.percentage > 0 ? '4px' : '0'
-                           }} />
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })})()}
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isClosed ? '0' : '18px' }}>
+                {!isClosed && (
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                    Live Data
+                  </span>
+                )}
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: isClosed ? '#64748b' : '#334155', marginLeft: isClosed ? '0' : 'auto' }}>
+                  {totalVotes} vote{totalVotes !== 1 ? 's' : ''}
+                </span>
               </div>
-            </div>
+
+              <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                <PollPieChart results={results} totalVotes={totalVotes} />
+                <div style={{ flex: 1, display: 'grid', gap: '10px', minWidth: 0 }}>
+                  {(() => {
+                    const maxVotes = Math.max(...results.map(x => x.votes), 0)
+                    const topOptionsCount = results.filter(x => x.votes === maxVotes && maxVotes > 0).length
+                    
+                    return results.map((r, i) => {
+                      const color = CHART_COLORS[i % CHART_COLORS.length]
+                      const isTop = r.votes === maxVotes && r.votes > 0
+                      const tagLabel = topOptionsCount > 1 ? "Tie" : "Leading"
+                      return (
+                        <div key={r.choice_id}>
+                          <div style={{ display: 'flex', alignItems: 'center', padding: '6px 0' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexShrink: 0, width: '45%' }}>
+                              <span style={{
+                                width: '8px', height: '8px', borderRadius: '50%',
+                                background: color, flexShrink: 0,
+                                boxShadow: `0 0 0 2px ${color}30`
+                              }} />
+                              <span style={{
+                                fontSize: '0.82rem', fontWeight: 600, color: '#334155',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                              }}>
+                                {r.text}
+                              </span>
+                              {isTop && (
+                                <span style={{
+                                  fontSize: '0.55rem', fontWeight: 800, color: color,
+                                  background: `${color}15`, border: `1px solid ${color}30`,
+                                  borderRadius: '4px', padding: '1px 5px',
+                                  textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0
+                                }}>
+                                  {tagLabel}
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color, flexShrink: 0, marginLeft: '8px', width: '36px', textAlign: 'right' }}>
+                              {r.percentage}%
+                            </span>
+                            <div style={{ 
+                              flex: 1, 
+                              height: '22px', 
+                              borderLeft: '2px solid #cbd5e1', 
+                              borderBottom: '2px solid #cbd5e1', 
+                              marginLeft: '14px',
+                              display: 'flex', 
+                              alignItems: 'flex-end', 
+                              paddingBottom: '2px'
+                            }}>
+                               <div style={{
+                                 height: '10px',
+                                 width: `${r.percentage}%`,
+                                 background: `linear-gradient(90deg, ${color}cc, ${color})`,
+                                 borderRadius: '0 3px 3px 0',
+                                 transition: 'width 0.9s cubic-bezier(0.4, 0, 0.2, 1)',
+                                 minWidth: r.percentage > 0 ? '4px' : '0'
+                               }} />
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
 
-        <div className="grid gap-4">
+      <div className="grid gap-4">
         <div className="flex gap-2">
           {!isClosed && (
             <Link href={`/poll/${poll.id}`} className="flex-1">
@@ -362,7 +391,8 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
 }
 
 export default function TeamPollsPage() {
-  const { id: teamId } = useParams()
+  const params = useParams()
+  const teamId = params.id as string
   const { user, loading } = useAuth()
   const [polls, setPolls] = useState<Poll[]>([])
   const [fetching, setFetching] = useState(true)
