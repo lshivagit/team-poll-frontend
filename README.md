@@ -15,10 +15,8 @@ Steps:
 1. Create database:
    CREATE DATABASE team_poll;
    
+-> POLLS TABLE
 
--- =========================
--- POLLS TABLE
--- =========================
 CREATE TABLE polls (
     id CHAR(36) NOT NULL PRIMARY KEY,
     team_id CHAR(36) NOT NULL,
@@ -29,49 +27,42 @@ CREATE TABLE polls (
     status ENUM('open', 'closed') DEFAULT 'open',
     closes_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (team_id)
         REFERENCES teams(id)
         ON DELETE CASCADE,
-
     FOREIGN KEY (created_by)
         REFERENCES users(id)
         ON DELETE CASCADE
 );
 
--- =========================
--- CHOICES TABLE
--- =========================
+
+->CHOICES TABLE
+
 CREATE TABLE choices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     poll_id CHAR(36) NOT NULL,
     option_text VARCHAR(255) NOT NULL,
-
     FOREIGN KEY (poll_id)
         REFERENCES polls(id)
         ON DELETE CASCADE
 );
 
--- =========================
--- VOTES TABLE
--- =========================
+
+-> VOTES TABLE
+
 CREATE TABLE votes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     poll_id CHAR(36) NOT NULL,
     option_id INT NOT NULL,
     user_id CHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     UNIQUE KEY unique_vote (poll_id, user_id, option_id),
-
     FOREIGN KEY (poll_id)
         REFERENCES polls(id)
         ON DELETE CASCADE,
-
     FOREIGN KEY (option_id)
         REFERENCES choices(id)
         ON DELETE CASCADE,
-
     FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE
