@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { api } from "@/lib/api"
@@ -110,8 +110,23 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
 function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy: (id: string) => void }) {
   const [results, setResults] = useState<Choice[]>([])
   const [totalVotes, setTotalVotes] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Intersection Observer to lazy-load streaming results
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting)
+    }, { threshold: 0.05 }) // Start streaming even when just slightly visible
+    
+    if (cardRef.current) observer.observe(cardRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
+    // Only connect if the card is visible on screen
+    if (!isVisible) return
+
     const token = localStorage.getItem("auth_token")
     const controller = new AbortController()
 
@@ -149,14 +164,17 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
 
     connect()
     return () => controller.abort()
-  }, [poll.id])
+  }, [poll.id, isVisible])
 
   const isClosed =
     poll.status === "closed" ||
     (poll.closes_at && new Date(poll.closes_at.replace(" ", "T") + "Z") < new Date())
 
   return (
-    <div className="glass-card p-8 flex flex-col justify-between" style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}>
+    <div ref={cardRef} className="glass-card p-10 flex flex-col justify-between" style={{ 
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease',
+      border: isVisible ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(226, 232, 240, 0.4)'
+    }}>
       <div>
         <div className="flex justify-between items-start gap-6 mb-5">
           <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0, lineHeight: 1.2 }}>{poll.title}</h3>
@@ -399,14 +417,14 @@ export default function TeamPollsPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-10 max-w-4xl mx-auto w-full">
           {fetching ? (
-            <div className="col-span-full py-20 text-center">
+            <div className="py-20 text-center bg-white/30 backdrop-blur-sm rounded-[32px] border border-slate-200">
               <div className="animate-spin h-10 w-10 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
               <p style={{ fontWeight: 600, color: '#64748b' }}>Syncing team data...</p>
             </div>
           ) : polls.length === 0 ? (
-            <div className="col-span-full border-2 border-dashed border-slate-200 rounded-[32px] py-32 text-center bg-white/50 backdrop-blur-md">
+            <div className="border-2 border-dashed border-slate-200 rounded-[32px] py-32 text-center bg-white/50 backdrop-blur-md">
               <div className="mb-6 mx-auto bg-slate-100 w-20 h-20 flex items-center justify-center rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
