@@ -1,14 +1,11 @@
-Here’s a **clean, minimal, professional README** with all fluff removed and properly formatted for direct paste:
-
-````markdown
-# Team Poll - Real-Time Decision App
+Team Poll - Real-Time Decision App
 
 A real-time team polling application built with **Rust (Axum)** and **Next.js (App Router)**.  
 Features include live result streaming, authentication, and optimized performance.
 
 ---
 
-## 🚀 Setup
+## Setup
 
 ### Backend (Rust / Axum)
 **Path:** `team-poll-backend-main/`
