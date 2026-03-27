@@ -1,23 +1,20 @@
-Team Poll - Real-Time Decision App
+# Team Poll - Real-Time Decision App
 
-A real-time team polling application built with **Rust (Axum)** and **Next.js (App Router)**.  
-Features include live result streaming, authentication, and optimized performance.
-
----
+A real-time team polling application built with Rust (Axum) and Next.js (App Router). Features live result streaming, authentication, and optimized performance.
 
 ## Setup
 
-### Backend (Rust / Axum)
-**Path:** `team-poll-backend-main/`
+Backend (Rust / Axum)
+Path: team-poll-backend-main/
 
-**Requirements**
+Requirements:
 - Rust
 - MySQL
 
-**Steps**
+Steps:
 1. Create database:
-   ```sql
    CREATE DATABASE team_poll;
+   
 
 -- =========================
 -- POLLS TABLE
@@ -80,100 +77,55 @@ CREATE TABLE votes (
         ON DELETE CASCADE
 );
 
-````
-
-2. Create `.env`:
-
-   ```env
+3. Create .env file:
    DATABASE_URL=mysql://username:password@localhost/team_poll
    PORT=3000
-   ```
 
-3. Run migrations (if using SQLx):
-
-   ```bash
+4. Run migrations (if using SQLx):
    sqlx migrate run
-   ```
 
-4. Start server:
-
-   ```bash
+5. Start server:
    cargo run
-   ```
 
-Backend runs on: `http://localhost:3000`
+Backend runs on http://localhost:3000
 
----
+Frontend (Next.js)
+Path: team-poll-frontend-main/
 
-### Frontend (Next.js)
-
-**Path:** `team-poll-frontend-main/`
-
-**Steps**
-
+Steps:
 1. Install:
-
-   ```bash
    npm install
-   ```
 
-2. Create `.env.local`:
-
-   ```env
+2. Create .env.local:
    NEXT_PUBLIC_API_URL=http://localhost:3000
-   ```
 
 3. Start:
-
-   ```bash
    npm run dev
-   ```
 
-Frontend runs on: `http://localhost:3001`
+Frontend runs on http://localhost:3001
 
----
+## Architecture
 
-## 🏗️ Architecture
+Real-time updates use Server-Sent Events (SSE). It is HTTP-based, lightweight, and supports auto-reconnect. Suitable for one-way updates like live vote counts.
 
-### Real-Time: SSE
+Performance optimizations:
+- Lazy loading SSE using Intersection Observer so connections open only when polls are visible
+- Fast-fetch plus stream approach: initial GET request loads data instantly, SSE handles updates
 
-* Uses Server-Sent Events instead of WebSockets
-* Lightweight, HTTP-based, auto-reconnect
-* Ideal for one-way live updates (votes)
+## Decisions
 
-### Performance Optimizations
-
-**Lazy SSE (Intersection Observer)**
-
-* Opens streams only when poll is visible
-* Prevents browser connection limits
-
-**Fast-Fetch + Stream**
-
-* Immediate GET request for instant data
-* SSE handles live updates after
-
----
-
-## ⚖️ Decisions
-
-* **Security First**: Validate team membership on every SSE connection
-* **Database**: MySQL (ACID, reliable under concurrency)
-* **UI Layout**: Single-column for readability and focus
-
----
+- Security: validate team membership on every SSE connection
+- Database: MySQL for reliability
+- UI: single-column layout for better readability
 
 ## Work Summary
 
-* Fixed Next.js build issue using `<Suspense>`
-* Implemented lazy-loaded SSE streams
-* Removed initial data lag via hybrid fetch strategy
-* Improved UI layout (vertical stack)
-* Added documentation
-
----
+- Fixed Next.js build issue using Suspense
+- Implemented lazy-loaded SSE streams
+- Added fast-fetch to remove initial lag
+- Improved UI layout
+- Added documentation
 
 ## Status
 
-Complete and production-ready.
-
+Complete and production-ready
