@@ -240,14 +240,14 @@ export default function PollPage() {
       <div style={{ position: 'fixed', top: '10%', left: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', opacity: 0.1, pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)', opacity: 0.08, pointerEvents: 'none' }} />
 
-      <div className="w-full max-w-md my-auto" style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '24px',
-        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.7) inset',
-        border: '1px solid rgba(255,255,255,0.3)',
-        padding: '28px',
+      <div className="w-full max-w-sm my-auto" style={{
+        background: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: '20px',
+        boxShadow: '0 15px 30px -10px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset',
+        border: '1px solid rgba(255,255,255,0.25)',
+        padding: '24px',
         position: 'relative'
       }}>
         {/* Header Section */}
@@ -290,24 +290,24 @@ export default function PollPage() {
           </div>
           
           <h1 style={{ 
-            fontSize: '1.5rem', 
+            fontSize: '1.2rem', 
             fontWeight: 800, 
             color: '#0f172a', 
-            marginBottom: '6px', 
-            letterSpacing: '-0.03em',
-            lineHeight: 1.2
+            marginBottom: '4px', 
+            letterSpacing: '-0.02em',
+            lineHeight: 1.25
           }}>
             {poll?.title}
           </h1>
           {poll?.about && (
-            <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, lineHeight: 1.4 }}>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500, lineHeight: 1.35 }}>
               {poll.about}
             </p>
           )}
         </div>
 
         {/* Options List */}
-        <div className="grid gap-4">
+        <div className="grid gap-2.5">
           {poll?.choices.map(choice => {
             const isSelected = selected.includes(choice.id)
             return (
@@ -316,10 +316,10 @@ export default function PollPage() {
                 onClick={() => !voted && toggleOption(choice.id)}
                 className={`group transition-all duration-300 ${voted ? 'cursor-default' : 'cursor-pointer'}`}
                   style={{
-                  padding: '14px 18px',
-                  borderRadius: '14px',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
                   background: isSelected ? 'white' : 'rgba(255,255,255,0.4)',
-                  border: isSelected ? '2px solid #6366f1' : '1px solid rgba(226, 232, 240, 0.6)',
+                  border: isSelected ? '1.5px solid #6366f1' : '1px solid rgba(226, 232, 240, 0.5)',
                   boxShadow: isSelected ? '0 10px 20px -5px rgba(99,102,241,0.15)' : 'none',
                   display: 'flex',
                   alignItems: 'center',
@@ -329,7 +329,7 @@ export default function PollPage() {
                 }}
               >
                 <span style={{ 
-                  fontSize: '1.2rem', 
+                  fontSize: '0.95rem', 
                   fontWeight: 700, 
                   color: isSelected ? '#1e293b' : '#475569',
                   transition: 'color 0.2s'
@@ -338,9 +338,9 @@ export default function PollPage() {
                 </span>
                 
                 <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: poll?.multiple_choice ? '8px' : '50%',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: poll?.multiple_choice ? '5px' : '50%',
                   border: '2px solid',
                   borderColor: isSelected ? '#6366f1' : '#cbd5e1',
                   background: isSelected ? '#6366f1' : 'transparent',
@@ -351,7 +351,7 @@ export default function PollPage() {
                   boxShadow: isSelected ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none'
                 }}>
                   {isSelected && (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6 9 17l-5-5"/>
                     </svg>
                   )}
@@ -366,15 +366,15 @@ export default function PollPage() {
           <button 
             onClick={submitVote} 
             disabled={selected.length === 0 || voting || voted}
-            className={`w-full py-3 rounded-xl font-bold text-base transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-1 hover:shadow-xl active:translate-y-0'}`}
+            className={`w-full py-2.5 rounded-lg font-bold text-sm transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0'}`}
             style={{
-              marginTop: '12px',
-              padding: '12px',
+              marginTop: '10px',
+              padding: '10px',
               background: voted ? '#10b981' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
               color: 'white',
               border: 'none',
-              borderRadius: '12px',
-              boxShadow: voted ? '0 8px 16px rgba(16,185,129,0.2)' : '0 8px 16px rgba(99,102,241,0.2)'
+              borderRadius: '10px',
+              boxShadow: voted ? '0 4px 10px rgba(16,185,129,0.15)' : '0 4px 12px rgba(99,102,241,0.15)'
             }}
           >
             {voting ? (
