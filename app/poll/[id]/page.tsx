@@ -240,19 +240,19 @@ export default function PollPage() {
       <div style={{ position: 'fixed', top: '10%', left: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', opacity: 0.1, pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)', opacity: 0.08, pointerEvents: 'none' }} />
 
-      <div className="w-full max-w-lg my-auto" style={{
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderRadius: '32px',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.6) inset',
+      <div className="w-full max-w-md my-auto" style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '24px',
+        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.7) inset',
         border: '1px solid rgba(255,255,255,0.3)',
-        padding: '36px',
+        padding: '28px',
         position: 'relative'
       }}>
         {/* Header Section */}
-        <div className="flex flex-col mb-10">
-          <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col mb-6">
+          <div className="flex justify-between items-center mb-4">
             <Link href={`/teams/${poll?.team_id}`} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1.5 no-underline">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               Back to Team
@@ -290,17 +290,17 @@ export default function PollPage() {
           </div>
           
           <h1 style={{ 
-            fontSize: '2.1rem', 
+            fontSize: '1.5rem', 
             fontWeight: 800, 
             color: '#0f172a', 
-            marginBottom: '8px', 
-            letterSpacing: '-0.04em',
-            lineHeight: 1.12
+            marginBottom: '6px', 
+            letterSpacing: '-0.03em',
+            lineHeight: 1.2
           }}>
             {poll?.title}
           </h1>
           {poll?.about && (
-            <p style={{ fontSize: '1rem', color: '#64748b', fontWeight: 500, lineHeight: 1.45 }}>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, lineHeight: 1.4 }}>
               {poll.about}
             </p>
           )}
@@ -316,10 +316,10 @@ export default function PollPage() {
                 onClick={() => !voted && toggleOption(choice.id)}
                 className={`group transition-all duration-300 ${voted ? 'cursor-default' : 'cursor-pointer'}`}
                   style={{
-                  padding: '20px 24px',
-                  borderRadius: '18px',
+                  padding: '14px 18px',
+                  borderRadius: '14px',
                   background: isSelected ? 'white' : 'rgba(255,255,255,0.4)',
-                  border: isSelected ? '2px solid #6366f1' : '2px solid rgba(226, 232, 240, 0.6)',
+                  border: isSelected ? '2px solid #6366f1' : '1px solid rgba(226, 232, 240, 0.6)',
                   boxShadow: isSelected ? '0 10px 20px -5px rgba(99,102,241,0.15)' : 'none',
                   display: 'flex',
                   alignItems: 'center',
@@ -366,12 +366,15 @@ export default function PollPage() {
           <button 
             onClick={submitVote} 
             disabled={selected.length === 0 || voting || voted}
-            className={`w-full py-5 rounded-2xl font-800 text-lg transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-1 hover:shadow-xl active:translate-y-0'}`}
+            className={`w-full py-3 rounded-xl font-bold text-base transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-1 hover:shadow-xl active:translate-y-0'}`}
             style={{
+              marginTop: '12px',
+              padding: '12px',
               background: voted ? '#10b981' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
               color: 'white',
               border: 'none',
-              boxShadow: voted ? '0 10px 20px -5px rgba(16,185,129,0.3)' : '0 10px 25px -5px rgba(99,102,241,0.3)'
+              borderRadius: '12px',
+              boxShadow: voted ? '0 8px 16px rgba(16,185,129,0.2)' : '0 8px 16px rgba(99,102,241,0.2)'
             }}
           >
             {voting ? (
