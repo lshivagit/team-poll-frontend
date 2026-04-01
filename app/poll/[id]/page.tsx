@@ -240,14 +240,14 @@ export default function PollPage() {
       <div style={{ position: 'fixed', top: '10%', left: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', opacity: 0.1, pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)', opacity: 0.08, pointerEvents: 'none' }} />
 
-      <div className="w-full max-w-2xl my-auto" style={{
-        background: 'rgba(255, 255, 255, 0.7)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+      <div className="w-full max-w-lg my-auto" style={{
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '32px',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
+        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.6) inset',
         border: '1px solid rgba(255,255,255,0.3)',
-        padding: '44px',
+        padding: '36px',
         position: 'relative'
       }}>
         {/* Header Section */}
@@ -290,17 +290,17 @@ export default function PollPage() {
           </div>
           
           <h1 style={{ 
-            fontSize: '2.5rem', 
-            fontWeight: 900, 
+            fontSize: '2.1rem', 
+            fontWeight: 800, 
             color: '#0f172a', 
-            marginBottom: '10px', 
+            marginBottom: '8px', 
             letterSpacing: '-0.04em',
-            lineHeight: 1.1
+            lineHeight: 1.12
           }}>
             {poll?.title}
           </h1>
           {poll?.about && (
-            <p style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 500, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '1rem', color: '#64748b', fontWeight: 500, lineHeight: 1.45 }}>
               {poll.about}
             </p>
           )}
@@ -315,9 +315,9 @@ export default function PollPage() {
                 key={choice.id} 
                 onClick={() => !voted && toggleOption(choice.id)}
                 className={`group transition-all duration-300 ${voted ? 'cursor-default' : 'cursor-pointer'}`}
-                style={{
-                  padding: '24px 28px',
-                  borderRadius: '22px',
+                  style={{
+                  padding: '20px 24px',
+                  borderRadius: '18px',
                   background: isSelected ? 'white' : 'rgba(255,255,255,0.4)',
                   border: isSelected ? '2px solid #6366f1' : '2px solid rgba(226, 232, 240, 0.6)',
                   boxShadow: isSelected ? '0 10px 20px -5px rgba(99,102,241,0.15)' : 'none',
