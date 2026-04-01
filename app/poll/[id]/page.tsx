@@ -240,14 +240,14 @@ export default function PollPage() {
       <div style={{ position: 'fixed', top: '10%', left: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, #818cf8 0%, transparent 70%)', opacity: 0.1, pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)', opacity: 0.08, pointerEvents: 'none' }} />
 
-      <div className="w-full max-w-sm my-auto" style={{
-        background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderRadius: '20px',
-        boxShadow: '0 15px 30px -10px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset',
-        border: '1px solid rgba(255,255,255,0.25)',
-        padding: '24px',
+      <div className="w-full max-w-[340px] my-auto" style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderRadius: '16px',
+        boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 0 0 1px rgba(255,255,255,0.9) inset',
+        border: '1px solid rgba(255,255,255,0.3)',
+        padding: '20px',
         position: 'relative'
       }}>
         {/* Header Section */}
@@ -290,24 +290,24 @@ export default function PollPage() {
           </div>
           
           <h1 style={{ 
-            fontSize: '1.2rem', 
+            fontSize: '1rem', 
             fontWeight: 800, 
             color: '#0f172a', 
             marginBottom: '4px', 
-            letterSpacing: '-0.02em',
-            lineHeight: 1.25
+            letterSpacing: '-0.01em',
+            lineHeight: 1.3
           }}>
             {poll?.title}
           </h1>
           {poll?.about && (
-            <p style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500, lineHeight: 1.35 }}>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, lineHeight: 1.3 }}>
               {poll.about}
             </p>
           )}
         </div>
 
         {/* Options List */}
-        <div className="grid gap-2.5">
+        <div className="grid gap-2">
           {poll?.choices.map(choice => {
             const isSelected = selected.includes(choice.id)
             return (
@@ -316,10 +316,10 @@ export default function PollPage() {
                 onClick={() => !voted && toggleOption(choice.id)}
                 className={`group transition-all duration-300 ${voted ? 'cursor-default' : 'cursor-pointer'}`}
                   style={{
-                  padding: '12px 14px',
-                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
                   background: isSelected ? 'white' : 'rgba(255,255,255,0.4)',
-                  border: isSelected ? '1.5px solid #6366f1' : '1px solid rgba(226, 232, 240, 0.5)',
+                  border: isSelected ? '1.5px solid #6366f1' : '1px solid rgba(226, 232, 240, 0.4)',
                   boxShadow: isSelected ? '0 10px 20px -5px rgba(99,102,241,0.15)' : 'none',
                   display: 'flex',
                   alignItems: 'center',
@@ -329,7 +329,7 @@ export default function PollPage() {
                 }}
               >
                 <span style={{ 
-                  fontSize: '0.95rem', 
+                  fontSize: '0.85rem', 
                   fontWeight: 700, 
                   color: isSelected ? '#1e293b' : '#475569',
                   transition: 'color 0.2s'
@@ -351,7 +351,7 @@ export default function PollPage() {
                   boxShadow: isSelected ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none'
                 }}>
                   {isSelected && (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6 9 17l-5-5"/>
                     </svg>
                   )}
@@ -366,10 +366,10 @@ export default function PollPage() {
           <button 
             onClick={submitVote} 
             disabled={selected.length === 0 || voting || voted}
-            className={`w-full py-2.5 rounded-lg font-bold text-sm transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0'}`}
+            className={`w-full py-2 rounded-lg font-bold text-xs transition-all duration-300 ${voting || selected.length === 0 || voted ? 'cursor-not-allowed opacity-50' : 'hover:-translate-y-0.5 hover:shadow-md active:translate-y-0'}`}
             style={{
-              marginTop: '10px',
-              padding: '10px',
+              marginTop: '6px',
+              padding: '8px',
               background: voted ? '#10b981' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
               color: 'white',
               border: 'none',
