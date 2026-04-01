@@ -131,7 +131,7 @@ export default function ResultsPage() {
             <div key={r.choice_id}>
               <div className="flex justify-between items-end mb-3">
                 <span className="font-bold text-lg text-slate-800">{r.text}</span>
-                <span className="text-sm font-medium text-slate-500">{r.votes} votes • {r.percentage}%</span>
+                <span className="text-sm font-medium text-slate-500">{r.votes} votes • {r.percentage.toFixed(1)}%</span>
               </div>
               <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div 

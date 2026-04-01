@@ -42,13 +42,14 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
     ]
   }
 
-  const segments = results.map((item, i) => {
-    if (item.percentage === 0) return null
+  const filteredResults = results.filter(item => item.percentage > 0)
+  const segments = filteredResults.map((item, i) => {
+    const isLast = i === filteredResults.length - 1
     const startPct = cumulativePercent
-    const endPct = cumulativePercent + item.percentage / 100
+    const endPct = isLast ? 1.0 : (cumulativePercent + item.percentage / 100)
     cumulativePercent = endPct
 
-    if (item.percentage === 100) {
+    if (item.percentage >= 100) {
       return (
         <g key={item.choice_id}>
           <circle cx={cx} cy={cy} r={outerR} fill={CHART_COLORS[i % CHART_COLORS.length]} />
@@ -71,11 +72,14 @@ function PollPieChart({ results, totalVotes }: { results: Choice[]; totalVotes: 
       'Z',
     ].join(' ')
 
+    const color = CHART_COLORS[i % CHART_COLORS.length]
     return (
       <path
         key={item.choice_id}
         d={d}
-        fill={CHART_COLORS[i % CHART_COLORS.length]}
+        fill={color}
+        stroke={color}
+        strokeWidth="0.5"
         style={{ transition: 'd 0.9s ease, fill 0.3s ease', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.10))' }}
       />
     )
@@ -132,7 +136,7 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
           choice_id: c.id,
           text: c.option_text,
           votes: c.vote_count,
-          percentage: initialTotal === 0 ? 0 : Math.round((c.vote_count / initialTotal) * 100)
+          percentage: initialTotal === 0 ? 0 : (c.vote_count / initialTotal) * 100
         }))
         setResults(mappedResults)
         setTotalVotes(initialTotal)
@@ -286,8 +290,8 @@ function PollCard({ poll, userId, onCopy }: { poll: Poll; userId: string; onCopy
                                 </span>
                               )}
                             </div>
-                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color, flexShrink: 0, marginLeft: '8px', width: '36px', textAlign: 'right' }}>
-                              {r.percentage}%
+                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color, flexShrink: 0, marginLeft: '8px', width: '42px', textAlign: 'right' }}>
+                              {r.percentage.toFixed(1)}%
                             </span>
                             <div style={{ 
                               flex: 1, 
